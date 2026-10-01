@@ -169,35 +169,27 @@ select{ font-family:'Lora'; padding:6px; border-radius:4px; border:1px solid var
 
 <script>
 const characters = [
-  {name:"Detetive", role:"Mediador do caso", pub:"Conduz os interrogatórios e decide quais provas valem.", secret:null},
-  {name:"O Suspeito", role:"Agricultura / Agropecuária", pub:"Defende a irrigação das lavouras como prioridade.",
+  {name:"Detetive", role:"Mediador do caso", pub:"Interroga os setores, decide quais provas são válidas e conduz o grupo até um acordo final.", secret:null},
+  {name:"O Suspeito", role:"Agropecuária", pub:"Tem motivo (irrigação intensa) e pode estar envolvido no problema. Defende sua necessidade de água sem assumir culpa fácil.",
     secret:{agua:"Usa grande parte da vazão em épocas de plantio; alega que sem ela a produção de alimentos da região cai.",
       gestao:"Pode adotar irrigação por gotejamento e horários alternados com os vizinhos para reduzir desperdício.",
       fontes:"Poços mais profundos e captação de água de chuva em cisternas para plantio."}},
-  {name:"O Morador", role:"Abastecimento e consumo humano", pub:"Representa a população urbana que depende da água tratada.",
-    secret:{agua:"Precisa de volume garantido o ano todo, mesmo em estiagem, para abastecer a cidade.",
-      gestao:"Reduzir perdas na rede de distribuição e campanhas de uso consciente.",
-      fontes:"Reúso de água tratada para fins não potáveis (limpeza urbana, irrigação de praças)."}},
-  {name:"O Zelador do Poço", role:"Abastecimento rural", pub:"Fala pelas comunidades do interior da bacia, mais distantes da rede tratada.",
-    secret:{agua:"Depende de poços e pequenos mananciais que secam primeiro quando a chuva falta.",
-      gestao:"Manutenção comunitária de poços e proteção das nascentes próximas às propriedades.",
-      fontes:"Captação de água de chuva e pequenos reservatórios comunitários."}},
-  {name:"O Desordeiro", role:"Energia elétrica", pub:"Diz que a geração de energia da região depende do nível do rio.",
+  {name:"O Morador", role:"Abastecimento humano e rural", pub:"Testemunha os efeitos da crise no dia a dia e fornece pistas verdadeiras sobre o que mudou no rio.",
+    secret:{agua:"Precisa de volume garantido o ano todo, mesmo em estiagem, para abastecer as residências.",
+      gestao:"Reduzir perdas na rede de distribuição, proteção das nascentes e campanhas de uso consciente.",
+      fontes:"Captação de água de chuva e reúso de água tratada para fins não potáveis."}},
+  {name:"O Desordeiro", role:"Energia elétrica", pub:"Espalha pistas falsas para desviar a atenção de seu próprio uso da água e atrapalhar a investigação.",
     secret:{agua:"Precisa manter um volume mínimo represado; pode espalhar informação incompleta para não reduzir esse volume.",
       gestao:"Ajustar a liberação de água em horários que não prejudiquem outros usos.",
       fontes:"Nenhuma nova fonte — prefere manter o controle sobre o que já usa."}},
-  {name:"O Timoneiro", role:"Navegação", pub:"Representa o transporte e o tráfego de pequenas embarcações no rio.",
-    secret:{agua:"Precisa de um nível mínimo de profundidade para a navegação não ser interrompida.",
-      gestao:"Dragagem pontual e sinalização para otimizar os trechos navegáveis.",
-      fontes:"Nenhuma — seu uso depende do volume natural do rio, não de captação."}},
-  {name:"O Pescador", role:"Pesca e aquicultura", pub:"Perdeu renda com a piora da qualidade da água e cobra responsáveis.",
+  {name:"O Pescador", role:"Pesca e aquicultura", pub:"Perdeu renda com a piora da água; pressiona por reparação e cobra provas contra quem poluiu.",
     secret:{agua:"Precisa de água limpa e com vazão estável para a reprodução dos peixes.",
       gestao:"Fiscalização de despejo de esgoto e recuperação de matas ciliares.",
       fontes:"Tanques de aquicultura com recirculação de água, reduzindo a dependência do rio."}},
-  {name:"O Guia", role:"Recreação e turismo", pub:"Depende de um rio limpo e bonito para atrair visitantes.",
+  {name:"O Guia", role:"Recreação e turismo", pub:"Depende do rio limpo para atrair visitantes; negocia trocas de informação por garantias de preservação.",
     secret:{agua:"Precisa de qualidade visual e sanitária da água, mais do que volume.",
       gestao:"Parcerias de limpeza das margens e educação ambiental para turistas e moradores.",
-      fontes:"Nenhuma nova captação — interesse é na preservação, não no consumo."}},
+      fontes:"Nenhuma nova captação — interesse é na preservação, não no consumo."}}
 ];
 
 const clues = [
@@ -206,7 +198,7 @@ const clues = [
   {title:"Pista 3", text:"Lançamento de esgoto sem tratamento compromete a qualidade da água ao longo do curso do rio.", tag:"Poluição / saneamento"},
   {title:"Pista 4", text:"Desmatamento das margens e das nascentes reduz a capacidade do rio de se recuperar na seca.", tag:"Desmatamento"},
   {title:"Pista 5", text:"Cada município decide sozinho sobre ocupação do solo, o que degrada a bacia como um todo.", tag:"Ocupação desordenada"},
-  {title:"Pista 6", text:"A cobrança pelo uso da água só começou a valer décadas depois de o problema ser identificado.", tag:"Governança tardia"},
+  {title:"Pista 6", text:"A cobrança pelo uso da água só começou a valer décadas depois de o problema ser identificado.", tag:"Governança tardia"}
 ];
 
 const charGrid = document.getElementById('charGrid');
