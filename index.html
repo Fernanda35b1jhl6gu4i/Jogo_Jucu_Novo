@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>O Caso do Rio Jucu — Jogo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F2E8D2; --paper-deep:#E6D7B3; --ink:#2B1E14; --ink-soft:#4A3728;
+  --leather:#7A4322; --brass:#A9802E; --line:#8A6C4B; --danger:#8B2E1E; --green:#3C6B35;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --paper:#2A2017; --paper-deep:#211A13; --ink:#EFE3C8; --ink-soft:#D8C9A3; --leather:#C98A57; --brass:#D8AE5E; --line:#6E5A3F; }
+}
+:root[data-theme="dark"]{ --paper:#2A2017; --paper-deep:#211A13; --ink:#EFE3C8; --ink-soft:#D8C9A3; --leather:#C98A57; --brass:#D8AE5E; --line:#6E5A3F; }
+*{box-sizing:border-box;}
+html,body{margin:0; min-height:100%; background:var(--paper-deep); font-family:'Lora',serif; color:var(--ink);}
+header{
+  padding:18px clamp(14px,4vw,40px) 10px; text-align:center; border-bottom:2px dashed var(--line);
+}
+header h1{font-family:'Special Elite',monospace; font-size:clamp(1.3rem,3vw,1.9rem); margin:0 0 4px;}
+header p{margin:0; color:var(--ink-soft); font-size:0.9rem;}
+nav.tabs{
+  display:flex; flex-wrap:wrap; gap:8px; justify-content:center; padding:14px;
+}
+nav.tabs button{
+  font-family:'Special Elite',monospace; background:var(--paper); border:1px solid var(--line);
+  color:var(--ink-soft); padding:8px 14px; border-radius:16px; cursor:pointer; font-size:0.8rem;
+}
+nav.tabs button.active{ background:var(--leather); color:var(--paper); border-color:var(--leather); }
+main{ max-width:980px; margin:0 auto; padding:0 clamp(14px,4vw,40px) 60px; }
+section.panel{ display:none; }
+section.panel.active{ display:block; }
+h2{ font-family:'Special Elite',monospace; font-size:1.3rem; border-bottom:2px dashed var(--line); padding-bottom:8px; }
+.hint{ color:var(--ink-soft); font-size:0.92rem; margin-top:-4px; }
+.grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; margin-top:14px; }
+.card{
+  background:var(--paper); border:1px solid var(--line); border-left:5px solid var(--leather);
+  border-radius:4px; padding:14px 16px; cursor:pointer; transition:box-shadow .15s;
+}
+.card:hover{ box-shadow:0 6px 14px rgba(0,0,0,.2); }
+.card h3{ font-family:'Special Elite',monospace; font-size:1rem; margin:0 0 4px; color:var(--leather); }
+.card .role{ font-family:'Special Elite',monospace; font-size:0.75rem; color:var(--brass); margin:0 0 8px; }
+.card p{ margin:0; font-size:0.92rem; color:var(--ink-soft); }
+.secret{
+  margin-top:10px; padding-top:10px; border-top:1px dashed var(--line); display:none; font-size:0.88rem;
+}
+.secret.open{ display:block; }
+.secret dt{ font-family:'Special Elite',monospace; font-size:0.74rem; color:var(--danger); margin-top:8px; }
+.secret dd{ margin:2px 0 0; color:var(--ink-soft); }
+.tapHint{ font-size:0.72rem; color:var(--brass); margin-top:8px; font-family:'Special Elite',monospace; }
+.clue{
+  background:var(--paper); border:1px dashed var(--line); border-radius:4px; padding:16px;
+  text-align:center; cursor:pointer; min-height:90px; display:flex; flex-direction:column; justify-content:center; gap:6px;
+}
+.clue.unlocked{ border-style:solid; border-left:5px solid var(--green); text-align:left; }
+.clue .lock{ font-family:'Special Elite',monospace; color:var(--ink-soft); }
+.clue h3{ font-family:'Special Elite',monospace; font-size:0.95rem; margin:0 0 4px; color:var(--leather); }
+.clue p{ margin:0; font-size:0.88rem; color:var(--ink-soft); }
+.clue .tag{ font-size:0.72rem; color:var(--brass); font-family:'Special Elite',monospace; margin-top:6px; }
+.steps{ list-style:none; padding:0; margin-top:10px; }
+.steps li{ border-bottom:1px dashed var(--line); padding:14px 0; display:flex; gap:14px; align-items:flex-start; }
+.steps li:last-child{ border-bottom:none; }
+.steps .num{
+  font-family:'Special Elite',monospace; width:32px; height:32px; border:2px solid var(--leather); border-radius:50%;
+  display:flex; align-items:center; justify-content:center; color:var(--leather); flex-shrink:0;
+}
+.steps .txt strong{ font-family:'Lora'; color:var(--ink); }
+.steps label{ display:flex; align-items:center; gap:6px; margin-top:6px; font-size:0.85rem; color:var(--ink-soft); }
+.timer{
+  margin-top:18px; background:var(--paper); border:1px solid var(--line); border-radius:4px; padding:16px;
+  display:flex; flex-wrap:wrap; align-items:center; gap:12px;
+}
+.timer input{ width:64px; font-family:'Special Elite',monospace; padding:6px; border:1px solid var(--line); border-radius:4px; background:var(--paper-deep); color:var(--ink); }
+.timer .display{ font-family:'Special Elite',monospace; font-size:1.6rem; color:var(--leather); min-width:90px; }
+button.act{
+  font-family:'Special Elite',monospace; background:var(--leather); color:var(--paper); border:none;
+  padding:8px 16px; border-radius:16px; cursor:pointer; font-size:0.82rem;
+}
+button.act:disabled{ opacity:.4; cursor:default; }
+.accordRow{ display:flex; justify-content:space-between; align-items:center; border-bottom:1px dashed var(--line); padding:10px 0; gap:10px; flex-wrap:wrap; }
+.accordRow span{ font-size:0.95rem; }
+select{ font-family:'Lora'; padding:6px; border-radius:4px; border:1px solid var(--line); background:var(--paper); color:var(--ink); }
+.resultBox{ margin-top:20px; padding:18px; border-radius:4px; border:2px solid var(--line); text-align:center; }
+.resultBox.ok{ border-color:var(--green); }
+.resultBox.ok h3{ color:var(--green); }
+.resultBox.bad{ border-color:var(--danger); }
+.resultBox.bad h3{ color:var(--danger); }
+.resultBox h3{ font-family:'Special Elite',monospace; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🔍 O CASO DO RIO JUCU</h1>
+  <p>Ferramenta digital — nenhuma impressão necessária</p>
+</header>
+
+<nav class="tabs">
+  <button data-tab="personagens" class="active">Fichas</button>
+  <button data-tab="pistas">Pistas</button>
+  <button data-tab="fases">Fases &amp; Timer</button>
+  <button data-tab="acordo">Acordo Final</button>
+</nav>
+
+<main>
+
+  <section class="panel active" id="personagens">
+    <h2>Fichas dos personagens</h2>
+    <p class="hint">Cada jogador escolhe um papel. Toque na ficha para abrir os dados secretos (só quem está com o papel deve ler).</p>
+    <div class="grid" id="charGrid"></div>
+  </section>
+
+  <section class="panel" id="pistas">
+    <h2>Quadro de pistas</h2>
+    <p class="hint">As pistas começam trancadas. O Detetive destranca uma pista quando alguém faz a pergunta certa no interrogatório.</p>
+    <div class="grid" id="clueGrid"></div>
+  </section>
+
+  <section class="panel" id="fases">
+    <h2>Fases do jogo</h2>
+    <ol class="steps">
+      <li><span class="num">1</span><div class="txt"><strong>Abertura do caso</strong> — leia a crise do rio em voz alta e distribua as fichas.<label><input type="checkbox"> concluído</label></div></li>
+      <li><span class="num">2</span><div class="txt"><strong>Investigação e negociação</strong> — o Detetive interroga cada setor, um de cada vez.<label><input type="checkbox"> concluído</label></div></li>
+      <li><span class="num">3</span><div class="txt"><strong>Coleta de provas</strong> — destranque pistas na aba "Pistas" conforme as respostas.<label><input type="checkbox"> concluído</label></div></li>
+      <li><span class="num">4</span><div class="txt"><strong>Veredito e acordo</strong> — preencham a aba "Acordo Final" juntos.<label><input type="checkbox"> concluído</label></div></li>
+      <li><span class="num">5</span><div class="txt"><strong>Debate final</strong> — comparem o acordo do jogo com o que aconteceu de fato na bacia do Jucu.<label><input type="checkbox"> concluído</label></div></li>
+    </ol>
+    <div class="timer">
+      <strong style="font-family:'Special Elite',monospace;">Cronômetro da rodada:</strong>
+      <input type="number" id="minInput" value="5" min="1" max="60"> min
+      <span class="display" id="timeDisplay">05:00</span>
+      <button class="act" id="startBtn">Iniciar</button>
+      <button class="act" id="resetBtn">Reiniciar</button>
+    </div>
+  </section>
+
+  <section class="panel" id="acordo">
+    <h2>Fechar o acordo</h2>
+    <p class="hint">Marquem quando cada setor concordar, e escolham a lei e o órgão que sustentam a decisão.</p>
+    <div id="accordList"></div>
+    <div class="timer">
+      <strong style="font-family:'Special Elite',monospace; font-size:0.8rem;">Lei citada:</strong>
+      <select id="lawSelect">
+        <option value="">— escolher —</option>
+        <option>Lei 9.433/1997 (Política Nacional de Recursos Hídricos)</option>
+        <option>Lei Estadual 10.179/2014 (Política Estadual de Recursos Hídricos — ES)</option>
+        <option>Lei Estadual 11.009/2019 (isenção da agricultura familiar)</option>
+      </select>
+      <strong style="font-family:'Special Elite',monospace; font-size:0.8rem;">Órgão acionado:</strong>
+      <select id="orgSelect">
+        <option value="">— escolher —</option>
+        <option>Comitê de Bacia Hidrográfica do Rio Jucu (CBH Jucu)</option>
+        <option>Agência Estadual de Recursos Hídricos (Agerh)</option>
+        <option>Conselho Estadual de Recursos Hídricos (CERH)</option>
+      </select>
+    </div>
+    <div style="margin-top:16px; text-align:center;">
+      <button class="act" id="closeDeal">Fechar acordo</button>
+    </div>
+    <div id="resultBox"></div>
+  </section>
+
+</main>
+
+<script>
+const characters = [
+  {name:"Detetive", role:"Mediador do caso", pub:"Conduz os interrogatórios e decide quais provas valem.", secret:null},
+  {name:"O Suspeito", role:"Agricultura / Agropecuária", pub:"Defende a irrigação das lavouras como prioridade.",
+    secret:{agua:"Usa grande parte da vazão em épocas de plantio; alega que sem ela a produção de alimentos da região cai.",
+      gestao:"Pode adotar irrigação por gotejamento e horários alternados com os vizinhos para reduzir desperdício.",
+      fontes:"Poços mais profundos e captação de água de chuva em cisternas para plantio."}},
+  {name:"O Morador", role:"Abastecimento e consumo humano", pub:"Representa a população urbana que depende da água tratada.",
+    secret:{agua:"Precisa de volume garantido o ano todo, mesmo em estiagem, para abastecer a cidade.",
+      gestao:"Reduzir perdas na rede de distribuição e campanhas de uso consciente.",
+      fontes:"Reúso de água tratada para fins não potáveis (limpeza urbana, irrigação de praças)."}},
+  {name:"O Zelador do Poço", role:"Abastecimento rural", pub:"Fala pelas comunidades do interior da bacia, mais distantes da rede tratada.",
+    secret:{agua:"Depende de poços e pequenos mananciais que secam primeiro quando a chuva falta.",
+      gestao:"Manutenção comunitária de poços e proteção das nascentes próximas às propriedades.",
+      fontes:"Captação de água de chuva e pequenos reservatórios comunitários."}},
+  {name:"O Desordeiro", role:"Energia elétrica", pub:"Diz que a geração de energia da região depende do nível do rio.",
+    secret:{agua:"Precisa manter um volume mínimo represado; pode espalhar informação incompleta para não reduzir esse volume.",
+      gestao:"Ajustar a liberação de água em horários que não prejudiquem outros usos.",
+      fontes:"Nenhuma nova fonte — prefere manter o controle sobre o que já usa."}},
+  {name:"O Timoneiro", role:"Navegação", pub:"Representa o transporte e o tráfego de pequenas embarcações no rio.",
+    secret:{agua:"Precisa de um nível mínimo de profundidade para a navegação não ser interrompida.",
+      gestao:"Dragagem pontual e sinalização para otimizar os trechos navegáveis.",
+      fontes:"Nenhuma — seu uso depende do volume natural do rio, não de captação."}},
+  {name:"O Pescador", role:"Pesca e aquicultura", pub:"Perdeu renda com a piora da qualidade da água e cobra responsáveis.",
+    secret:{agua:"Precisa de água limpa e com vazão estável para a reprodução dos peixes.",
+      gestao:"Fiscalização de despejo de esgoto e recuperação de matas ciliares.",
+      fontes:"Tanques de aquicultura com recirculação de água, reduzindo a dependência do rio."}},
+  {name:"O Guia", role:"Recreação e turismo", pub:"Depende de um rio limpo e bonito para atrair visitantes.",
+    secret:{agua:"Precisa de qualidade visual e sanitária da água, mais do que volume.",
+      gestao:"Parcerias de limpeza das margens e educação ambiental para turistas e moradores.",
+      fontes:"Nenhuma nova captação — interesse é na preservação, não no consumo."}},
+];
+
+const clues = [
+  {title:"Pista 1", text:"Estiagens reduzem drasticamente o volume do rio em certos meses, agravando a disputa entre setores.", tag:"Escassez sazonal"},
+  {title:"Pista 2", text:"Produtores vizinhos relatam que já não é possível irrigar o dia todo sem combinar entre si.", tag:"Disputa direta (irrigação)"},
+  {title:"Pista 3", text:"Lançamento de esgoto sem tratamento compromete a qualidade da água ao longo do curso do rio.", tag:"Poluição / saneamento"},
+  {title:"Pista 4", text:"Desmatamento das margens e das nascentes reduz a capacidade do rio de se recuperar na seca.", tag:"Desmatamento"},
+  {title:"Pista 5", text:"Cada município decide sozinho sobre ocupação do solo, o que degrada a bacia como um todo.", tag:"Ocupação desordenada"},
+  {title:"Pista 6", text:"A cobrança pelo uso da água só começou a valer décadas depois de o problema ser identificado.", tag:"Governança tardia"},
+];
+
+const charGrid = document.getElementById('charGrid');
+characters.forEach((c, idx) => {
+  const div = document.createElement('div');
+  div.className = 'card';
+  let secretHtml = '';
+  if (c.secret) {
+    secretHtml = `<div class="secret" id="secret${idx}">
+      <dt>Água a distribuir</dt><dd>${c.secret.agua}</dd>
+      <dt>Gestão no uso da água</dt><dd>${c.secret.gestao}</dd>
+      <dt>Novas fontes</dt><dd>${c.secret.fontes}</dd>
+    </div>
+    <div class="tapHint" id="hint${idx}">toque para ver a ficha secreta</div>`;
+  }
+  div.innerHTML = `<h3>${c.name}</h3><p class="role">${c.role}</p><p>${c.pub}</p>${secretHtml}`;
+  if (c.secret) {
+    div.addEventListener('click', () => {
+      const s = document.getElementById('secret'+idx);
+      const h = document.getElementById('hint'+idx);
+      s.classList.toggle('open');
+      h.textContent = s.classList.contains('open') ? 'toque para esconder de novo' : 'toque para ver a ficha secreta';
+    });
+  }
+  charGrid.appendChild(div);
+});
+
+const clueGrid = document.getElementById('clueGrid');
+clues.forEach((cl, idx) => {
+  const div = document.createElement('div');
+  div.className = 'clue';
+  div.id = 'clue'+idx;
+  div.innerHTML = `<span class="lock">🔒 ${cl.title} — trancada</span>`;
+  div.addEventListener('click', () => {
+    if (!div.classList.contains('unlocked')) {
+      div.classList.add('unlocked');
+      div.innerHTML = `<h3>🔓 ${cl.title}</h3><p>${cl.text}</p><span class="tag">${cl.tag}</span>`;
+    }
+  });
+  clueGrid.appendChild(div);
+});
+
+const accordList = document.getElementById('accordList');
+characters.filter(c => c.secret).forEach((c, idx) => {
+  const row = document.createElement('div');
+  row.className = 'accordRow';
+  row.innerHTML = `<span>${c.name} (${c.role})</span><label><input type="checkbox" class="agreeBox"> concorda com o acordo</label>`;
+  accordList.appendChild(row);
+});
+
+document.getElementById('closeDeal').addEventListener('click', () => {
+  const boxes = document.querySelectorAll('.agreeBox');
+  const allAgree = Array.from(boxes).every(b => b.checked);
+  const law = document.getElementById('lawSelect').value;
+  const org = document.getElementById('orgSelect').value;
+  const result = document.getElementById('resultBox');
+  if (allAgree && law && org) {
+    result.innerHTML = `<div class="resultBox ok"><h3>✅ CASO RESOLVIDO</h3><p>Todos os setores concordaram, com base na ${law}, acionando ${org}.</p></div>`;
+  } else {
+    let missing = [];
+    if (!allAgree) missing.push('a concordância de todos os setores');
+    if (!law) missing.push('a lei citada');
+    if (!org) missing.push('o órgão acionado');
+    result.innerHTML = `<div class="resultBox bad"><h3>🔍 CASO AINDA ABERTO</h3><p>Falta: ${missing.join(', ')}.</p></div>`;
+  }
+});
+
+// Tabs
+document.querySelectorAll('nav.tabs button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('nav.tabs button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('section.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  });
+});
+
+// Timer
+let timerInterval = null;
+let remaining = 5*60;
+function renderTime(){
+  const m = String(Math.floor(remaining/60)).padStart(2,'0');
+  const s = String(remaining%60).padStart(2,'0');
+  document.getElementById('timeDisplay').textContent = `${m}:${s}`;
+}
+document.getElementById('minInput').addEventListener('change', (e) => {
+  remaining = Math.max(1, parseInt(e.target.value||'5',10)) * 60;
+  renderTime();
+});
+document.getElementById('startBtn').addEventListener('click', () => {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval=null; document.getElementById('startBtn').textContent='Iniciar'; return; }
+  document.getElementById('startBtn').textContent='Pausar';
+  timerInterval = setInterval(() => {
+    if (remaining > 0) { remaining--; renderTime(); }
+    else { clearInterval(timerInterval); timerInterval=null; document.getElementById('startBtn').textContent='Iniciar'; }
+  }, 1000);
+});
+document.getElementById('resetBtn').addEventListener('click', () => {
+  clearInterval(timerInterval); timerInterval=null;
+  document.getElementById('startBtn').textContent='Iniciar';
+  remaining = Math.max(1, parseInt(document.getElementById('minInput').value||'5',10)) * 60;
+  renderTime();
+});
+renderTime();
+</script>
+</body>
+</html>
